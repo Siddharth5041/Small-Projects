@@ -1,0 +1,47 @@
+import numpy as np
+import cv2 as cv
+
+#We need to create a nothing func since trackbar requires a callback function when it is executed to store its value, but in our case we are updating it directly
+def nothing(x):
+    pass
+
+# Create white image
+img = 255 * np.ones((512,512,3), np.uint8)
+
+cv.namedWindow('image')
+
+# Create trackbars for color
+cv.createTrackbar('Red', 'image', 0, 255, nothing)
+cv.createTrackbar('Blue', 'image', 0, 255, nothing)
+cv.createTrackbar('Green', 'image', 0, 255, nothing)
+
+# Switch for on/off
+switch = '0 : OFF \n1 : ON'
+cv.createTrackbar(switch, 'image', 0, 1, nothing)
+
+# Trackbar for size
+cv.createTrackbar('Size', 'image', 0, 50, nothing)
+
+# Mouse callback function
+def draw_circle(event, x, y, flags, param):    
+    # Draw only when mouse is moving AND left button is pressed
+    if event == cv.EVENT_MOUSEMOVE and (flags & cv.EVENT_FLAG_LBUTTON):
+        r = cv.getTrackbarPos('Red', 'image')
+        b = cv.getTrackbarPos('Blue', 'image')
+        g = cv.getTrackbarPos('Green', 'image')
+        s = cv.getTrackbarPos(switch, 'image')
+        S = cv.getTrackbarPos('Size', 'image')
+
+        if s == 1:  # Only draw if switch is ON
+            cv.circle(img, (x, y), S, (b, g, r), -1)
+
+# Set mouse callback once
+cv.setMouseCallback('image', draw_circle)
+
+while True:
+    cv.imshow('image', img)
+    k = cv.waitKey(1) & 0xFF
+    if k == 27:  # ESC to exit
+        break
+
+cv.destroyAllWindows()
